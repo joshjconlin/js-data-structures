@@ -1,5 +1,6 @@
 const Node = require('./Node');
 
+// todo: match DoubleLinkedList interface
 class SingleLinkedList {
     constructor() {
         this.length = 0;

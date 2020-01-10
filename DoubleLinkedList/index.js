@@ -74,7 +74,7 @@ class DoubleLinkedList {
 
     /*
         @param index: int
-        @param data: any
+        @param data: *
     */
     set(index, data) {
         const node = this.get(index);
@@ -93,16 +93,18 @@ class DoubleLinkedList {
     findAll(predicate) {
         let node = this.head;
         let results = [];
-        while(node) {
+        while (node) {
             if (predicate(node)) {
                 results.push(node);
-            } 
+            }
             node = node.next;
         }
         return results;
     }
 
     /**
+     * returns the first element that the predicate function
+     *  returns true for else null
      * 
      * @param {function} predicate 
      * @returns {Node}
@@ -110,7 +112,7 @@ class DoubleLinkedList {
     find(predicate) {
         let node = this.head;
         let found = null;
-        while(node) {
+        while (node) {
             if (predicate(node)) {
                 found = node;
                 break;
@@ -127,15 +129,15 @@ class DoubleLinkedList {
      * @returns {DoubleLinkedList}
      */
     filter(predicate) {
-      const list = new DoubleLinkedList();
-      const node = this.head;
-      while(node) {
-        if (predicate(node)) {
-            list.push(node.data);
+        const list = new DoubleLinkedList();
+        const node = this.head;
+        while (node) {
+            if (predicate(node)) {
+                list.push(node.data);
+            }
+            node = node.next;
         }
-        node = node.next;
-      }
-      return list;
+        return list;
     }
 
     reduce() {
@@ -178,10 +180,19 @@ class DoubleLinkedList {
 
     }
 
+    /**
+     * returns an array of {Nodes}
+     * @returns {Array}
+     */
     toArray() {
 
     }
 
+    /**
+     * adds a item to the beginning of the list
+     * mutates the current list
+     * @param {*} data 
+     */
     unshift(data) {
         const newNode = new Node(data);
         if (!this.length) {
@@ -189,15 +200,21 @@ class DoubleLinkedList {
             this.head = newNode;
             this.tail = newNode;
             return this;
+        } else {
+            this.length++;
+            const head = this.head;
+            head.prev = newNode;
+            newNode.next = head;
+            this.head = newNode;
         }
-        this.length++;
-        const head = this.head;
-        head.prev = newNode;
-        newNode.next = head;
-        this.head = newNode;
-        return this;
     }
 
+    /**
+     * removes an item from the beginning of the list
+     * mutates the list
+     * 
+     * @returns {Node}
+     */
     shift() {
         if (!this.length) {
             return undefined;
@@ -215,21 +232,31 @@ class DoubleLinkedList {
         return head;
     }
 
+    /**
+     * adds an item to the end of the list
+     * mutates the current list
+     * 
+     * @param {*} data 
+     */
     push(data) {
         const newNode = new Node(data);
         this.length++;
         if (!this.head) {
             this.head = newNode;
             this.tail = newNode;
-            return this;
+        } else {
+            const previousTail = this.tail;
+            previousTail.next = newNode;
+            newNode.prev = previousTail;
+            this.tail = newNode;
         }
-        const previousTail = this.tail;
-        previousTail.next = newNode;
-        newNode.prev = previousTail;
-        this.tail = newNode;
-        return this;
     }
 
+    /**
+     * remove an element from the end of the list
+     * mutates the current list
+     * @returns {Node}
+     */
     pop() {
         if (!this.tail) {
             return undefined;
