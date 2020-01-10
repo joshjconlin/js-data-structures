@@ -1,0 +1,19 @@
+{
+  "name": "js-data-structures",
+  "version": "1.0.0",
+  "description": "Pure javascript implementation of javascript data structures",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "javascript",
+    "algorithms",
+    "data-structures"
+  ],
+  "author": "Josh Conlin",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "7.0.0"
+  }
+}
