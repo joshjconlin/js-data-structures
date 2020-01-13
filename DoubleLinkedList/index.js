@@ -1,53 +1,101 @@
 const Node = require('./Node');
 
-// todo: return new lists with map, etc, don't mutate, document that
-// todo: fix all doc params
-
 class DoubleLinkedList {
-    constructor() {
-        this.head = null;
-        this.tail = null;
-        this.length = 0;
-    }
+    head = null;
+    tail = null;
+    length = 0;
 
     /**
-     * 
-     * @param {function} predicate 
-     * @returns {DoubleLinkedList}
+     * this function traverses the entire list, awaiting the predicate function 
+     * to resolve for each node's data before moving onto the next node 
+     * @public  
+     * @param {Function} predicate
      */
-    // todo: this is wrong
-    async mapAsync(predicate) {
+    async asyncTraverse(predicate) {
         let node = this.head;
-        while (node !== null) {
-            node.data = await predicate(node);
+        let count = 0;
+        while (count < this.length) {
+            await predicate(node.data);
             node = node.next;
+            count++;
         }
-        return this;
     }
 
     /**
+     * returns a new list of items transformed
+     * by the predicate function
      * 
-     * @param {function} predicate 
-     * @returns {DoubleLinkedList}
+     * passes the data of each node to the predicate function
+     * instead of the whole node itself, and creates a new node with
+     * that transformed data;
+     * 
+     * @public
+     * @param {Function} predicate
+     * @returns DoubleLinkedList
      */
     map(predicate) {
         let node = this.head;
+        let newList = new DoubleLinkedList();
         while (node !== null) {
-            node.data = predicate(node);
+            newList.push(predicate(node.data));
             node = node.next;
         }
-        return this;
+        return newList;
     }
 
+    /**
+     * loops through all Nodes in the list and calls the
+     * predicate function with their data value
+     * @public
+     * @param {Function} predicate 
+     */
     forEach(predicate) {
         let node = this.head;
         while (node !== null) {
-            predicate(node);
+            predicate(node.data);
             node = node.next;
         }
     }
 
+    /**
+     * returns data from node at index specified
+     * @public
+     * @param {Number} index 
+     * @returns *
+     */
     get(index) {
+        if (index >= this.length || index < 0) {
+            return undefined;
+        }
+        if (index === 0) {
+            return this.head.data;
+        }
+        if (index === this.length - 1) {
+            return this.tail.data;
+        }
+        if (index > (this.length - 1) / 2) {
+            let node = this.tail
+            for (let i = this.length - 1; i > index; i--) {
+                node = node.prev;
+            }
+            return node.data;
+        } else {
+            let node = this.head;
+            for (let i = 0; i < index; i++) {
+                node = node.next;
+            }
+            return node.data;
+        }
+    }
+
+    /**
+     * get node at index
+     * 
+     * @public
+     * @param {Number} index 
+     * @returns Node
+     */
+    getNode(index) {
         if (index >= this.length || index < 0) {
             return undefined;
         }
@@ -72,12 +120,19 @@ class DoubleLinkedList {
         }
     }
 
-    /*
-        @param index: int
-        @param data: *
-    */
+    /**
+     * sets the data property for the Node at index specified to be the data passed
+     * 
+     * @public
+     * @param {Number} index 
+     * @param {*} data 
+     * @returns Boolean
+     */
     set(index, data) {
-        const node = this.get(index);
+        if (index < 0 || index > this.length - 1 || !this.length) {
+            return false;
+        }
+        const node = this.getNode(index);
         if (!node) {
             return false;
         } else {
@@ -86,16 +141,20 @@ class DoubleLinkedList {
         }
     }
 
-    /*
-    @param predicate: function
-    @return array
-    */
+    /**
+     * returns an array of all Nodes which the predicate
+     * function returned true for
+     * 
+     * @public
+     * @param {Function} predicate 
+     * @returns Array
+     */
     findAll(predicate) {
         let node = this.head;
         let results = [];
         while (node) {
-            if (predicate(node)) {
-                results.push(node);
+            if (predicate(node.data)) {
+                results.push(node.data);
             }
             node = node.next;
         }
@@ -106,16 +165,16 @@ class DoubleLinkedList {
      * returns the first element that the predicate function
      *  returns true for else null
      * 
-     * @param {function} predicate 
-     * @returns {Node}
+     * @public
+     * @param {Function} predicate 
+     * @returns Node
      */
     find(predicate) {
         let node = this.head;
         let found = null;
-        while (node) {
-            if (predicate(node)) {
-                found = node;
-                break;
+        while (node && !found) {
+            if (predicate(node.data)) {
+                found = node.data;
             } else {
                 node = node.next;
             }
@@ -124,15 +183,17 @@ class DoubleLinkedList {
     }
 
     /**
+     * returns a new list containing all the Nodes for which the predicate function returns true
      * 
-     * @param {function} predicate 
-     * @returns {DoubleLinkedList}
+     * @public
+     * @param {Function} predicate 
+     * @returns DoubleLinkedList
      */
     filter(predicate) {
         const list = new DoubleLinkedList();
-        const node = this.head;
+        let node = this.head;
         while (node) {
-            if (predicate(node)) {
+            if (predicate(node.data)) {
                 list.push(node.data);
             }
             node = node.next;
@@ -140,57 +201,238 @@ class DoubleLinkedList {
         return list;
     }
 
-    reduce() {
-
-    }
-
-    reverse() {
-
-    }
-
-    insert() {
-
-    }
-
-    remove() {
-
-    }
-
-    first() {
-
-    }
-
-    last() {
-
-    }
-
-    contains() {
-
-    }
-
-    indexOf() {
-
-    }
-
-    isEmpty() {
-
-    }
-
-    clear() {
-
+    /**
+     * 
+     * returns one value reduced with the predicate function
+     *  from the all the Nodes in the list
+     * @public
+     * @param {Function} predicate 
+     * @param {*} defaultValue 
+     * @returns *
+     */
+    reduce(predicate, defaultValue = 0) {
+        let returnValue = defaultValue;
+        if (!this.length) {
+            return defaultValue;
+        }
+        let node = this.head;
+        while (node) {
+            returnValue = predicate(returnValue, node.data);
+            node = node.next;
+        }
+        return returnValue;
     }
 
     /**
-     * returns an array of {Nodes}
-     * @returns {Array}
+     * reverses the order of items in the list
+     * @public
+     * @returns ThisType
+     */
+    reverse() {
+        if (!this.length) {
+            return this;
+        }
+        let newTail = this.head;
+        let newHead = this.tail;
+        this.head = newHead;
+        this.tail = newTail;
+        let node = newHead;
+        let next = null;
+        let prev = null;
+        while (node) {
+            next = node.prev;
+            prev = node.next;
+            node.prev = prev;
+            node.next = next;
+            node = next;
+        }
+
+        return this;
+    }
+
+    /**
+     * 
+     * inserts a new Node with the data passed at the index given
+     * 
+     * @public
+     * @param {Number} index 
+     * @param {*} data 
+     * @returns Boolean
+     */
+    insert(index, data) {
+        if (index < 0 || index > this.length) {
+            return false;
+        }
+        if (index === 0) {
+            this.unshift(data);
+            return true;
+        }
+        if (index === this.length) {
+            this.push(data);
+            return true;
+        }
+        this.length++;
+        const startFromRear = index > (this.length - 1) / 2;
+        let node;
+        if (startFromRear) {
+            node = this.tail;
+            let count = this.length - 1;
+            while (count !== index - 1) { // get item before in list
+                node = node.prev;
+                count--;
+            }
+        } else {
+            node = this.head;
+            let count = 0;
+            while (count !== index - 1) {
+                node = node.next;
+                count++;
+            }
+        }
+        const next = node.next;
+        node.next = new Node(data);
+        node.next.next = next;
+        return true;
+    }
+
+    /**
+     * removes item at index, mutates current list
+     * 
+     * @public
+     * @param {Number} index 
+     * @returns Node
+     */
+    remove(index) {
+        if (index < 0 || index >= this.length) {
+            return undefined;
+        }
+        if (index === 0) {
+            return this.shift();
+        }
+        if (index === this.length - 1) {
+            return this.pop();
+        }
+        this.length--;
+        const startFromRear = index > (this.length - 1) / 2;
+        let node;
+        if (startFromRear) {
+            node = this.tail;
+            let count = this.length - 1;
+            while (count !== index - 1) { // get item before in list
+                node = node.prev;
+                count--;
+            }
+        } else {
+            node = this.head;
+            let count = 0;
+            while (count !== index - 1) {
+                node = node.next;
+                count++;
+            }
+        }
+        const remove = node.next;
+        const next = remove.next;
+        node.next = next;
+        return remove;
+    }
+
+    /**
+     * returns first node in the list
+     * @public
+     * @returns Node
+     */
+    first() {
+        return this.head;
+    }
+
+    /**
+     * returns last node in the list
+     * @public
+     * @returns Node
+     */
+    last() {
+        return this.tail;
+    }
+
+    /**
+     * returns true or false if the list contains an item.
+     * checks for strict equality between a Node's data and the item 
+     * it's passed
+     * @public
+     * @param {*} item 
+     * @returns Boolean
+     */
+    contains(item) {
+        return this.indexOf((node) => node.data === item) !== -1;
+    }
+
+    /**
+     * 
+     * returns the index of the first Node the predicate function
+     * returns true for
+     * @public
+     * @param {Function} predicate
+     * @returns Number
+     */
+    indexOf(predicate) {
+        let index = -1;
+        if (!this.length) {
+            return index;
+        }
+
+        let node = this.head;
+        while (node) {
+            if (predicate(node)) {
+                index = i;
+                break;
+            }
+            node = node.next;
+        }
+        return index;
+    }
+
+    /**
+     * returns weather or not list is empty
+     * 
+     * @public
+     * @returns Boolean
+     */
+    isEmpty() {
+        return !!this.length;
+    }
+    /**
+     * removes all items from the list,
+     * mutates the current list
+     * @public
+     */
+    clear() {
+        this.head = null;
+        this.tail = null;
+        this.length = 0;
+    }
+
+    /**
+     * returns an array of node's data
+     * @public
+     * @returns Array
      */
     toArray() {
-
+        const output = [];
+        if (!this.length) {
+            return output;
+        }
+        let node = this.head;
+        while (node) {
+            output.push(node.data);
+            node = node.next;
+        }
+        return output;
     }
 
     /**
      * adds a item to the beginning of the list
      * mutates the current list
+     * @public
      * @param {*} data 
      */
     unshift(data) {
@@ -212,8 +454,8 @@ class DoubleLinkedList {
     /**
      * removes an item from the beginning of the list
      * mutates the list
-     * 
-     * @returns {Node}
+     * @public
+     * @returns Node
      */
     shift() {
         if (!this.length) {
@@ -235,7 +477,7 @@ class DoubleLinkedList {
     /**
      * adds an item to the end of the list
      * mutates the current list
-     * 
+     * @public
      * @param {*} data 
      */
     push(data) {
@@ -255,7 +497,8 @@ class DoubleLinkedList {
     /**
      * remove an element from the end of the list
      * mutates the current list
-     * @returns {Node}
+     * @public
+     * @returns Node
      */
     pop() {
         if (!this.tail) {
