@@ -117,8 +117,6 @@ describe('It correctly performs all double linked list actions', () => {
         assert.deepEqual(list.filter((data) => typeof data === 'string').toArray(), ['1', '2']);
     });
 
-    // reduce
-
     it('reverses a list', () => {
         const list = new DoubleLinkedList();
         list.push(1);
@@ -139,6 +137,7 @@ describe('It correctly performs all double linked list actions', () => {
         assert.deepEqual(list.toArray(), [3, 2, 1]);
     });
 
+    // reduce
     // insert
     // remove
     // first

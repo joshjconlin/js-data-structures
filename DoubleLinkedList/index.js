@@ -6,16 +6,16 @@ class DoubleLinkedList {
     length = 0;
 
     /**
-     * this function traverses the entire list, awaiting the predicate function 
+     * this function traverses the entire list, awaiting the fn function 
      * to resolve for each node's data before moving onto the next node 
      * @public  
-     * @param {Function} predicate
+     * @param {Function} fn
      */
-    async asyncTraverse(predicate) {
+    async asyncTraverse(fn) {
         let node = this.head;
         let count = 0;
         while (count < this.length) {
-            await predicate(node.data);
+            await fn(node.data);
             node = node.next;
             count++;
         }
@@ -23,21 +23,21 @@ class DoubleLinkedList {
 
     /**
      * returns a new list of items transformed
-     * by the predicate function
+     * by the fn function
      * 
-     * passes the data of each node to the predicate function
+     * passes the data of each node to the fn function
      * instead of the whole node itself, and creates a new node with
      * that transformed data;
      * 
      * @public
-     * @param {Function} predicate
+     * @param {Function} fn
      * @returns DoubleLinkedList
      */
-    map(predicate) {
+    map(fn) {
         let node = this.head;
         let newList = new DoubleLinkedList();
         while (node !== null) {
-            newList.push(predicate(node.data));
+            newList.push(fn(node.data));
             node = node.next;
         }
         return newList;
@@ -45,14 +45,14 @@ class DoubleLinkedList {
 
     /**
      * loops through all Nodes in the list and calls the
-     * predicate function with their data value
+     * fn function with their data value
      * @public
-     * @param {Function} predicate 
+     * @param {Function} fn 
      */
-    forEach(predicate) {
+    forEach(fn) {
         let node = this.head;
         while (node !== null) {
-            predicate(node.data);
+            fn(node.data);
             node = node.next;
         }
     }
@@ -142,18 +142,18 @@ class DoubleLinkedList {
     }
 
     /**
-     * returns an array of all Nodes which the predicate
+     * returns an array of all Nodes which the fn
      * function returned true for
      * 
      * @public
-     * @param {Function} predicate 
+     * @param {Function} fn 
      * @returns Array
      */
-    findAll(predicate) {
+    findAll(fn) {
         let node = this.head;
         let results = [];
         while (node) {
-            if (predicate(node.data)) {
+            if (fn(node.data)) {
                 results.push(node.data);
             }
             node = node.next;
@@ -162,18 +162,18 @@ class DoubleLinkedList {
     }
 
     /**
-     * returns the first element that the predicate function
+     * returns the first element that the fn function
      *  returns true for else null
      * 
      * @public
-     * @param {Function} predicate 
+     * @param {Function} fn 
      * @returns Node
      */
-    find(predicate) {
+    find(fn) {
         let node = this.head;
         let found = null;
         while (node && !found) {
-            if (predicate(node.data)) {
+            if (fn(node.data)) {
                 found = node.data;
             } else {
                 node = node.next;
@@ -183,17 +183,17 @@ class DoubleLinkedList {
     }
 
     /**
-     * returns a new list containing all the Nodes for which the predicate function returns true
+     * returns a new list containing all the Nodes for which the fn function returns true
      * 
      * @public
-     * @param {Function} predicate 
+     * @param {Function} fn 
      * @returns DoubleLinkedList
      */
-    filter(predicate) {
+    filter(fn) {
         const list = new DoubleLinkedList();
         let node = this.head;
         while (node) {
-            if (predicate(node.data)) {
+            if (fn(node.data)) {
                 list.push(node.data);
             }
             node = node.next;
@@ -203,21 +203,21 @@ class DoubleLinkedList {
 
     /**
      * 
-     * returns one value reduced with the predicate function
+     * returns one value reduced with the fn function
      *  from the all the Nodes in the list
      * @public
-     * @param {Function} predicate 
+     * @param {Function} fn 
      * @param {*} defaultValue 
      * @returns *
      */
-    reduce(predicate, defaultValue = 0) {
+    reduce(fn, defaultValue = 0) {
         let returnValue = defaultValue;
         if (!this.length) {
             return defaultValue;
         }
         let node = this.head;
         while (node) {
-            returnValue = predicate(returnValue, node.data);
+            returnValue = fn(returnValue, node.data);
             node = node.next;
         }
         return returnValue;
@@ -368,13 +368,13 @@ class DoubleLinkedList {
 
     /**
      * 
-     * returns the index of the first Node the predicate function
+     * returns the index of the first Node the fn function
      * returns true for
      * @public
-     * @param {Function} predicate
+     * @param {Function} fn
      * @returns Number
      */
-    indexOf(predicate) {
+    indexOf(fn) {
         let index = -1;
         if (!this.length) {
             return index;
@@ -382,7 +382,7 @@ class DoubleLinkedList {
 
         let node = this.head;
         while (node) {
-            if (predicate(node)) {
+            if (fn(node)) {
                 index = i;
                 break;
             }
